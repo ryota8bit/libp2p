@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-// ReadBlockChain Get block data from another node and stdout.
+// ReadBlockChain read incoming blockchain from a peer and stdout.
 func ReadBlockChain(rw *bufio.ReadWriter) {
 	for {
 		str, err := rw.ReadString('\n')
