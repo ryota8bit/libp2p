@@ -3,6 +3,7 @@ package service
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 )
@@ -29,16 +30,24 @@ func ReadBlockChain(rw *bufio.ReadWriter) {
 			mutex.Lock()
 			if len(chain) > len(BlockChain) {
 				BlockChain = chain
+
+				validateBlockChain()
+
 				bytes, err := json.MarshalIndent(BlockChain, "", "  ")
 				if err != nil {
-
 					log.Fatal(err)
 				}
-				// Green console color: 	\x1b[32m
-				// Reset console color: 	\x1b[0m
 				fmt.Printf("\x1b[32m%s\x1b[0m> ", string(bytes))
 			}
 			mutex.Unlock()
+		}
+	}
+}
+
+func validateBlockChain() {
+	for idx, v := range BlockChain {
+		if len(BlockChain) > idx+1 && !IsBlockValid(BlockChain[idx+1], v) {
+			log.Fatal(errors.New("invalid block"))
 		}
 	}
 }

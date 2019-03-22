@@ -25,15 +25,19 @@ func StreamHandler(ha host.Host) {
 }
 
 func StreamHandlerWithTarget(ha host.Host, target string) {
+	// Stream handler that opens when specified as a target
 	ha.SetStreamHandler(P2PProtocolID, HandleStream)
 
 	// Open a new stream to given peer p, and writes a p2p/protocol
 	stream := newStream(ha, target)
 
 	// Create a buffered stream so that read and writes are non blocking.
-	rw := bufio.NewReadWriter(bufio.NewReader(stream), bufio.NewWriter(stream))
+	rw := bufio.NewReadWriter(
+		bufio.NewReader(stream),
+		bufio.NewWriter(stream),
+	)
 
-	// Create a my thread to read and write data.
+	// Create a my thread to stream.
 	go WriteBlockChain(rw)
 	go WriteBlockChainWithInputPrompt(rw)
 	go ReadBlockChain(rw)
@@ -44,12 +48,13 @@ func StreamHandlerWithTarget(ha host.Host, target string) {
 // newStream open a new stream to given peer p, and writes a p2p/protocol
 func newStream(ha host.Host, target string) inet.Stream {
 
-	peerID := getPeerID(target)
-	targetAddr := getMultiAddr(target, peerID)
+	peerID, targetAddr := getPeerIDWithMultiaddr(target)
 
-	// We have a peer ID and a targetAddr so we add it to the peerstore
-	// so LibP2P knows how to contact it
-	ha.Peerstore().AddAddr(peerID, targetAddr, pstore.PermanentAddrTTL)
+	ha.Peerstore().AddAddr(
+		peerID,
+		targetAddr,
+		pstore.PermanentAddrTTL,
+	)
 
 	log.Println("opening stream")
 	log.Println("We are ", ha.Peerstore().Peers())
@@ -62,7 +67,7 @@ func newStream(ha host.Host, target string) inet.Stream {
 	return s
 }
 
-func getPeerID(target string) peer.ID {
+func getPeerIDWithMultiaddr(target string) (peer.ID, ma.Multiaddr) {
 	ipfsAddr, err := ma.NewMultiaddr(target)
 	if err != nil {
 		log.Fatalln(err)
@@ -73,21 +78,11 @@ func getPeerID(target string) peer.ID {
 		log.Fatalln(err)
 	}
 
-	peerid, err := peer.IDB58Decode(pid)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	return peerid
-}
-
-// getMultiAddr following code extracts target's peer ID from the.
-func getMultiAddr(target string, peerID peer.ID) ma.Multiaddr {
-
-	ipfsAddr, err := ma.NewMultiaddr(target)
+	peerID, err := peer.IDB58Decode(pid)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	targetPeerAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ipfs/%s", peer.IDB58Encode(peerID)))
-	return ipfsAddr.Decapsulate(targetPeerAddr)
+	return peerID, ipfsAddr.Decapsulate(targetPeerAddr)
 }

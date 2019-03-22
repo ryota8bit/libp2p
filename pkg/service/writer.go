@@ -44,24 +44,9 @@ func WriteBlockChainWithInputPrompt(rw *bufio.ReadWriter) {
 			log.Fatal(err)
 		}
 
-		sendData = strings.Replace(sendData, "\n", "", -1)
-		bpm, err := strconv.Atoi(sendData)
-		if err != nil {
-			log.Fatal(err)
-		}
-		newBlock := GenerateBlock(BlockChain[len(BlockChain)-1], bpm)
-
-		if IsBlockValid(newBlock, BlockChain[len(BlockChain)-1]) {
-			mutex.Lock()
-			BlockChain = append(BlockChain, newBlock)
-			mutex.Unlock()
-		}
-
-		bytes, err := json.Marshal(BlockChain)
-		if err != nil {
-			log.Println(err)
-		}
-
+		point := getPoint(sendData)
+		newBlock := GenerateBlock(BlockChain[len(BlockChain)-1], point)
+		bytes := appendBlockWithMarshal(newBlock)
 		spew.Dump(BlockChain)
 
 		mutex.Lock()
@@ -69,4 +54,30 @@ func WriteBlockChainWithInputPrompt(rw *bufio.ReadWriter) {
 		rw.Flush()
 		mutex.Unlock()
 	}
+}
+
+func appendBlockWithMarshal(newBlock Block) []byte {
+	if IsBlockValid(newBlock, BlockChain[len(BlockChain)-1]) {
+		mutex.Lock()
+		BlockChain = append(BlockChain, newBlock)
+		mutex.Unlock()
+	}
+	return marshalWithDumpBlockChain()
+}
+
+func marshalWithDumpBlockChain() []byte {
+	bytes, err := json.Marshal(BlockChain)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return bytes
+}
+
+func getPoint(sendData string) int {
+	sendData = strings.Replace(sendData, "\n", "", -1)
+	point, err := strconv.Atoi(sendData)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return point
 }

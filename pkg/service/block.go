@@ -11,7 +11,7 @@ import (
 type Block struct {
 	Index     int
 	Timestamp string
-	POINT     int
+	Point     int
 	Hash      string
 	PrevHash  string
 }
@@ -38,7 +38,7 @@ func IsBlockValid(newBlock, oldBlock Block) bool {
 
 // SHA256 hashing
 func CalculateHash(block Block) string {
-	record := strconv.Itoa(block.Index) + block.Timestamp + strconv.Itoa(block.POINT) + block.PrevHash
+	record := strconv.Itoa(block.Index) + block.Timestamp + strconv.Itoa(block.Point) + block.PrevHash
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
@@ -46,7 +46,7 @@ func CalculateHash(block Block) string {
 }
 
 // create a new block using previous block's hash
-func GenerateBlock(oldBlock Block, BPM int) Block {
+func GenerateBlock(oldBlock Block, Point int) Block {
 
 	var newBlock Block
 
@@ -54,7 +54,7 @@ func GenerateBlock(oldBlock Block, BPM int) Block {
 
 	newBlock.Index = oldBlock.Index + 1
 	newBlock.Timestamp = t.String()
-	newBlock.POINT = BPM
+	newBlock.Point = Point
 	newBlock.PrevHash = oldBlock.Hash
 	newBlock.Hash = CalculateHash(newBlock)
 
