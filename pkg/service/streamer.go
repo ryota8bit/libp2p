@@ -47,15 +47,12 @@ func StreamHandlerWithTarget(ha host.Host, target string) {
 
 // newStream open a new stream to given peer p, and writes a p2p/protocol
 func newStream(ha host.Host, target string) inet.Stream {
-
 	peerID, targetAddr := getPeerIDWithMultiaddr(target)
-
 	ha.Peerstore().AddAddr(
 		peerID,
 		targetAddr,
 		pstore.PermanentAddrTTL,
 	)
-
 	log.Println("opening stream")
 	log.Println("We are ", ha.Peerstore().Peers())
 

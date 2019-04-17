@@ -13,7 +13,6 @@ func main() {
 	// Parse options from the command line
 	listenF := flag.Int("l", 0, "wait for incoming connections")
 	target := flag.String("d", "", "target peer to dial")
-	seed := flag.Int64("seed", 0, "set random seed for id generation")
 	flag.Parse()
 
 	if *listenF == 0 {
@@ -25,7 +24,7 @@ func main() {
 	golog.SetAllLoggers(gologging.INFO)
 
 	// Make a host that listens on the given multiaddress
-	ha, err := service.BasicHost(*listenF, *seed)
+	ha, err := service.BasicHost(*listenF)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,9 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
-	"io"
 	"log"
-	mrand "math/rand"
 	"sync"
 	"time"
 
@@ -27,16 +25,8 @@ func InitBlockChain() {
 }
 
 // BasicHost creates a LibP2P host with a random peer ID listening on the
-func BasicHost(listenPort int, randSeed int64) (host.Host, error) {
-
-	var r io.Reader
-	if randSeed == 0 {
-		r = rand.Reader
-	} else {
-		r = mrand.New(mrand.NewSource(randSeed))
-	}
-
-	priv, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
+func BasicHost(listenPort int) (host.Host, error) {
+	priv, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, rand.Reader)
 	if err != nil {
 		return nil, err
 	}
@@ -54,13 +44,14 @@ func BasicHost(listenPort int, randSeed int64) (host.Host, error) {
 	// Build host multiaddress
 	multiAddr := fmt.Sprintf("/ipfs/%s", p2pHost.ID().Pretty())
 
-	// Now we can build a full multiaddress to reach this host
-	// by encapsulating both addresses:
+	//Now we can build a full multiaddress to reach this host
+	//by encapsulating both addresses:
 	//hostAddr, _ := ma.NewMultiaddr(multiAddr)
 	//addr := p2pHost.Addrs()[0]
 	//fullAddr := addr.Encapsulate(hostAddr)
 	//log.Printf("I am %s\n", fullAddr)
 
-	log.Printf("Now run \"p2p-app -l %d -d /ip4/127.0.0.1/tcp/%d%s\" on a different terminal\n", listenPort+1, listenPort, multiAddr)
+	log.Printf("Now run \"p2p-app -l %d -d /ip4/127.0.0.1/tcp/%d%s\" on a different terminal\n",
+		listenPort+1, listenPort, multiAddr)
 	return p2pHost, nil
 }

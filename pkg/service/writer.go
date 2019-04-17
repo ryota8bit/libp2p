@@ -28,14 +28,13 @@ func WriteBlockChain(rw *bufio.ReadWriter) {
 			rw.WriteString(fmt.Sprintf("%s\n", string(bytes)))
 			rw.Flush()
 			mutex.Unlock()
-
 		}
 	}()
 }
 
-// WriteBlockChainWithInputPrompt Get block from input prompt and propagate block to another node.
+// WriteBlockChainWithInputPrompt Get block from input prompt,
+// propagate block to another node.
 func WriteBlockChainWithInputPrompt(rw *bufio.ReadWriter) {
-
 	stdReader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Print("> ")

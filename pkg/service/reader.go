@@ -30,7 +30,6 @@ func ReadBlockChain(rw *bufio.ReadWriter) {
 			mutex.Lock()
 			if len(chain) > len(BlockChain) {
 				BlockChain = chain
-
 				validateBlockChain()
 
 				bytes, err := json.MarshalIndent(BlockChain, "", "  ")
